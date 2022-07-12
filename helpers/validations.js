@@ -1,6 +1,6 @@
 const joi = require("joi");
 
-function validateRegisterInput(input) {
+async function validateRegisterInput(input) {
   try {
     // {
     //     "username":""//string min 3
@@ -23,7 +23,7 @@ function validateRegisterInput(input) {
       role: joi.string().default("USER"),
       lastLoginTime: joi.string(),
       lastLogoutTime: joi.string(),
-    });
+    }).required();
     const data=schema.validate(input);
     if(data.error){
        const errors = data.error.details.map((item)=>item.message);
