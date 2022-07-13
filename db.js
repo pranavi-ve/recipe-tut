@@ -11,7 +11,7 @@ const database = {
                 console.log(err);
                 cb(err);
             }
-        db = client.db(process.env.DB_PASSWORD);
+        db = client.db(process.env.DB_NAME);
         console.log("connected to database");
         cb();
         // perform actions on the collection object

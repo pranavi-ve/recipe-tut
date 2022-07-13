@@ -1,18 +1,7 @@
 const joi = require("joi");
 
-async function validateRegisterInput(input) {
+function validateRegisterInput(input) {
   try {
-    // {
-    //     "username":""//string min 3
-    //     "password":"",//min 8 contains special number ,
-    //     "email"://string email,
-    //     "login":"",
-    //     "logout:"",
-    //     "gender":"",
-    //     "role":"",
-    //     "dob":""
-    // }
-
     const schema = joi.object({
       username: joi.string().min(3).required(),
       password: joi.string().min(8).required(),
