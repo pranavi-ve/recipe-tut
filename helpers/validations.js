@@ -1,8 +1,7 @@
-const joi = require("joi");
 
 function validateInput(schema, input) {
   try {
-    if(!schema) throw {message:"Invalid Schema"};
+    if(!schema) throw Error("Invalid Schema");
     const data = schema.validate(input);
     if (data.error) {
       const errors = data.error.details.map((item) => item.message);

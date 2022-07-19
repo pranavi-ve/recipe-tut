@@ -1,6 +1,8 @@
 require("dotenv").config({ debug: true });
 const express = require("express");
 const authRouter = require("./routes/auth.routes");
+const ingreRouter = require("./routes/ingre.routes");
+const {authenticate} = require("./middlewares/auth.middleware")
 const {handleError} = require("./middlewares/error-handler.middleware");
 const db = require("./db");
 
@@ -13,6 +15,7 @@ server.get("/", (req, res) => {
   res.json("hi");
 });
 server.use("/auth", authRouter);
+server.use("/ingredients", authenticate, ingreRouter);
 
 server.use(handleError); 
 
