@@ -1,11 +1,12 @@
 const express = require("express");
 const joi = require("joi");
-
 const { validateInput } = require("../helpers/validations");
 const {
   registerUser,
-  authenticateUser,
+  loginUser,
+  logoutUser
 } = require("../controllers/auth.controller");
+
 const router = express.Router();
 
 router.post("/login", (req, res, next) => {
@@ -15,6 +16,7 @@ router.post("/login", (req, res, next) => {
       .object({
         username: joi.string().min(3).required(),
         password: joi.string().min(8).required(),
+        lastLoginTime: joi.date().default(Date.now()),
       })
       .required();
     const data = validateInput(schema, input);
@@ -22,10 +24,14 @@ router.post("/login", (req, res, next) => {
       res.status(422).json({ message: data.errors });
       return;
     }
-    authenticateUser(data.value)
-      .then((data) =>{
+    loginUser(data.value)
+      .then((token) =>{
         console.log("inside route",data);
-         res.json(data);
+        const headers = {
+          "Authorization":"Bearer "+token
+        }
+        res.set(headers);
+        res.json({message:"User Authenticated Successfully!"});
          return;
       })
       .catch((e) => {
@@ -51,8 +57,7 @@ router.post("/register", (req, res, next) => {
         lastLoginTime: joi.string(),
         lastLogoutTime: joi.string(),
         createdTime: joi.date().default(Date.now()),
-      })
-      .required();
+      }).required();
     const data = validateInput(schema, input);
     if (data.hasError) {
       res.status(422).json({ message: data.errors });
@@ -69,6 +74,14 @@ router.post("/register", (req, res, next) => {
   }
 });
 
-router.post("/logout", (req, res) => {});
+//expire token
+router.get("/logout", (req, res) => {
+  const headers = req.headers;
+  //jwt
+    if(!headers || !headers.authorization) throw new Error('Cannot find auth token');
+    return logoutUser(headers.authorization)
+      .then((data)=>res.json(data))
+      .catch((e)=>next(e))
+});
 
 module.exports = router;

@@ -1,6 +1,13 @@
 const bcrypt = require("bcryptjs");
-const { insertUser, findUser } = require("../services/auth.services");
+const jwt = require("jsonwebtoken");
+const {
+  insertUser,
+  findUser,
+  findAndUpdateUser,
+  updateUser
+} = require("../services/auth.services");
 
+//check if username already exists
 async function registerUser(user) {
   const hash = bcrypt.hashSync(user.password);
   const newUser = { ...user, password: hash };
@@ -13,16 +20,48 @@ async function registerUser(user) {
     });
 }
 
-async function authenticateUser(user) {
-  //input password hash,
+async function loginUser(user) {
   return findUser({ username: user.username })
-    .then((result) => bcrypt.compare(user.password, result.password))
-    .then((match) => {
-      if (!match) throw { message: "Username or password is incorrect" };
-      return { message: "User Authenticated Successfully" };
+    .then((result) => {
+      const match = bcrypt.compareSync(user.password, result.password);
+      if (!match) throw Error("Username or password is incorrect");
+      return result;
+    }).then((result)=>{
+      updateUser(
+        {
+          username: result.username,
+        },
+        { $set: { lastLoginTime: Date.now() } }
+      );
+      return result;
+    })
+    .then((result) => {
+      const token = jwt.sign(
+        { username: result.username, role: result.role },
+        process.env.JWT_KEY
+      );
+      return token;
     })
     .catch((e) => {
-      throw { message: "Username or password is incorrect" };
+      throw Error("Username or password is incorrect");
     });
 }
-module.exports = { registerUser, authenticateUser };
+
+async function logoutUser(authToken) {
+  const token = authToken.replace("Bearer ", "");
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    console.log(decoded);
+    return findAndUpdateUser(
+      {
+        username: decoded.username,
+      },
+      { $set: { lastLogoutTime: Date.now() } }
+    )
+      .then((data) =>({message : 'Logged out Successfully!'}))
+      .catch((e) => {throw e});
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports = { registerUser, loginUser, logoutUser };
