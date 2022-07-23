@@ -8,8 +8,17 @@ function getIngredients(query) {
         throw e;
       });
   } catch (error) {
-      throw error;
+    throw error;
   }
 }
-
-module.exports = {getIngredients}
+function addIngredients(details) {
+  try {
+    return ingreServ
+      .insertIngredient(details)
+      .then((data) => ({ message: "Ingredients added successfully" }))
+      .catch((e) => {
+        throw e;
+      });
+  } catch (error) {}
+}
+module.exports = { getIngredients, addIngredients };
