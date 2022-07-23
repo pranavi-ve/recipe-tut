@@ -10,7 +10,11 @@ function authenticate(req, res, next) {
     authServ
       .findUser({ username: decoded.username, role: decoded.role })
       .then((data) => {
-        req.user = { _id: data._id, username: data.username };
+        req.user = {
+          _id: data._id,
+          username: data.username,
+          role: decoded.role,
+        };
         next();
       })
       .catch((e) => {
@@ -21,4 +25,19 @@ function authenticate(req, res, next) {
   }
 }
 
-module.exports = { authenticate };
+function authorize(roles) {
+  return (req, res, next) => {
+    let permittedRoles = roles;
+    if (typeof roles === "string") {
+      permittedRoles = [roles];
+    }
+    const currentUser = req.user;
+    if (permittedRoles.includes(currentUser.role)) {
+      next();
+      return;
+    }
+    throw new Error("User not authorized");
+  };
+}
+
+module.exports = { authenticate, authorize };
