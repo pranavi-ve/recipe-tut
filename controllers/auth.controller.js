@@ -51,7 +51,6 @@ async function logoutUser(authToken) {
   const token = authToken.replace("Bearer ", "");
   try {
     const decoded = jwt.verify(token, process.env.JWT_KEY);
-    console.log(decoded);
     return findAndUpdateUser(
       {
         username: decoded.username,
