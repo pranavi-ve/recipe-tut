@@ -6,7 +6,7 @@ function validateInput(schema) {
         const data = schema.validate(input);
         if (data.error) {
           const errors = data.error.details.map((item) => item.message);
-          res.status(422).json({ message: data.errors });
+          res.status(422).json({ message: errors });
         }
         next(data.value);
       } catch (error) {

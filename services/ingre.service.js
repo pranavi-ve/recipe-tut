@@ -34,4 +34,48 @@ async function insertIngredient(details) {
   }
 }
 
-module.exports = { findIngredients, insertIngredient };
+async function deleteIngredient(details) {
+  try {
+    const dbo = db.getDb();
+    return new Promise((res, rej) => {
+      dbo.collection("ingredients").deleteOne(details, (err, result) => {
+        if (err) rej(err);
+        if (!result) rej("Unknown error occured");
+        res(result);
+      });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+async function autoComplete(q) {
+  try {
+    const dbo = db.getDb();
+    return new Promise((res, rej) => {
+      const agg = [
+        { $search: { autocomplete: { query: q, path: "name" } }},
+        // {$limit: 10},
+        // {$project: {_id: 0,title: 1}}
+      ];
+      dbo
+        .collection("ingredients")
+        .aggregate(agg)
+        .toArray()
+        .then((result, err) => {
+          console.log("result", result);
+          console.log("err",err);
+          if (err) rej(err);
+          if (!result) rej("Unknown error occured");
+          res(result);
+        });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports = {
+  findIngredients,
+  insertIngredient,
+  deleteIngredient,
+  autoComplete,
+};
