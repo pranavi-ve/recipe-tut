@@ -22,6 +22,27 @@ const schema = {
       createdTime: joi.date().default(Date.now()),
     })
     .required(),
+  recipe: joi.object({
+    name: joi.string().min(3).required(),
+    ingredients: joi.array().items(
+      joi.object({
+        name: joi.string().required(),
+        quantity: joi.string().required(),
+      })
+    ),
+    time: joi.string().required(), 
+    instructions: joi.string().required(),
+    tips: joi.string(),
+    category: joi.string().required(),
+    img: joi.string().uri(),
+    video: joi.string().uri(),
+    uploadedAt: joi.date().default(Date.now()),
+    author: joi.object({
+      name: joi.string().required(),
+      bio: joi.string(),
+      img: joi.string().uri(),
+    }),
+  }),
 };
 
 module.exports = schema;
