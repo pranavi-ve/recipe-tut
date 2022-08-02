@@ -53,9 +53,18 @@ async function autoComplete(q) {
     const dbo = db.getDb();
     return new Promise((res, rej) => {
       const agg = [
-        { $search: { autocomplete: { query: q, path: "name" } }},
-        // {$limit: 10},
-        // {$project: {_id: 0,title: 1}}
+          {
+              "$search": {
+                  "autocomplete": {
+                      "query": q,
+                      "path": "name",
+                      "fuzzy": {
+                          "maxEdits": 2,
+                          "prefixLength": 3
+                      }
+                  }
+              }
+          }
       ];
       dbo
         .collection("ingredients")

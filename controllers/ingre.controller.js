@@ -26,7 +26,6 @@ function addIngredients(details) {
 }
 function deleteIngredientsById(id) {
   try {
-    console.log(ObjectID(id));
     return ingreServ
       .deleteIngredient({_id : ObjectID(id)})
       .then((data) => ({ message: "Ingredient deleted successfully" }))
@@ -41,7 +40,7 @@ function autoSearch(input) {
   try {
     return ingreServ
       .autoComplete(input.query)
-      .then((data) => res.json(data))
+      .then((data)=>data)
       .catch((e) => {
         throw e;
       });
